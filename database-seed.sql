@@ -3,7 +3,7 @@ CREATE TABLE cities (
   name text NOT NULL,
   state text NOT NULL,
   latitude decimal NOT NULL,
-  longitude decimal NOT NULL,
+  longitude decimal NOT NULL
 );
 
 -- Frontend passes city directly so this is fine as an index.
@@ -13,7 +13,7 @@ CREATE TABLE weather (
   id serial PRIMARY KEY,
   city_id integer NOT NULL,
   date date NOT NULL,
-  temperature integer NOT NULL,
+  temperature integer NOT NULL
 );
 
 -- We only query on the city id and weather date so we can use a compound index.
