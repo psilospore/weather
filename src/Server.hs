@@ -8,46 +8,42 @@ module Server where
 
 import App (App, Environment)
 import App qualified
-import Control.Monad.Reader (ReaderT (ReaderT, runReaderT), asks, liftIO)
+import Control.Monad.Reader (ReaderT (ReaderT, runReaderT), asks, liftIO, void)
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Proxy
 import Data.Text
 import Data.Time (Day (..))
-import Database.PostgreSQL.Simple (FromRow, Only (..), query, query_)
+import Database.PostgreSQL.Simple (FromRow, Only (..), ToRow, execute, query, query_)
 import Database.PostgreSQL.Simple.FromField (FromField (fromField))
 import Database.PostgreSQL.Simple.FromRow (FromRow (fromRow), field)
 import Database.PostgreSQL.Simple.SqlQQ (sql)
+import Database.PostgreSQL.Simple.ToField (ToField (toField))
+import Database.PostgreSQL.Simple.ToRow (ToRow (toRow))
 import GHC.Generics (Generic)
-import Network.HTTP.Client
-  ( defaultManagerSettings,
-    newManager,
-  )
 import Network.Wai.Handler.Warp (run)
 import Servant
-import Servant.API
-import Servant.Client
+import WeatherApi (WeatherResponse (WeatherResponse))
+import WeatherApi qualified
 
 type API =
   "locations" :> Get '[JSON] [City]
-    :<|> "location" :> Capture "city" Text :> "weather" :> Get '[JSON] WeatherEntry
+    :<|> "location" :> Capture "cityId" Int :> "weather" :> Get '[JSON] WeatherEntry
 
 newtype State = State Text deriving (Show, Eq, Ord, Generic)
 
 instance FromField State where
   fromField f mdata = State <$> fromField f mdata
 
+instance ToField State where
+  toField (State state) = toField state
+
 instance FromJSON State
 
 instance ToJSON State
 
-newtype Temperature = Temperature Int deriving (Show, Eq, Ord, Generic, FromField)
-
-instance FromJSON Temperature
-
-instance ToJSON Temperature
-
 data City = City
-  { cityName :: Text,
+  { cityId :: Int,
+    cityName :: Text,
     state :: State,
     latitude :: Double,
     longitude :: Double
@@ -55,7 +51,11 @@ data City = City
   deriving (Show, Eq, Ord, Generic)
 
 instance FromRow City where
-  fromRow = City <$> field <*> (State <$> field) <*> field <*> field
+  fromRow = City <$> field <*> field <*> (State <$> field) <*> field <*> field
+
+instance ToRow City where
+  toRow (City cityId cityName state latitude longitude) =
+    [toField cityId, toField cityName, toField state, toField latitude, toField longitude]
 
 instance FromJSON City
 
@@ -64,7 +64,7 @@ instance ToJSON City
 data WeatherEntry = WeatherEntry
   { city :: City,
     date :: Day,
-    temperature :: Temperature
+    temperature :: Double
   }
   deriving (Show, Eq, Generic)
 
@@ -72,32 +72,37 @@ instance FromJSON WeatherEntry
 
 instance ToJSON WeatherEntry
 
--- server :: Server API
--- server = (liftIO .locations) :<|> (liftIO . weatherFor)
-
 -- List of available cities that have weather data.
 -- It can be a hard coded list or cities from a state.
 -- From a single state?
 locations :: App [City]
 locations = do
   conn <- asks App.connection
-  liftIO $ query_ conn "SELECT name, state, latitude, longitude FROM cities"
+  liftIO $ query_ conn "SELECT id, name, state, latitude, longitude FROM cities"
 
-weatherFor :: Text -> App WeatherEntry
-weatherFor cityName = do
+weatherFor :: Int -> App WeatherEntry
+weatherFor cityId = do
   conn <- asks App.connection
-  weather <-
+  [city] <- liftIO $ query conn "select * from cities where id = ?" (Only cityId)
+  -- TODO withTransaction otherwise we can have duplicate entries
+  cachedWeather <-
     liftIO $
       query
         conn
-        [sql| SELECT name, state, latitude, longitude, date, temperature FROM weather
+        [sql| SELECT cities.id, name, state, latitude, longitude, date, temperature FROM weather
             join cities on weather.city_id = cities.id
             WHERE city = ? and date = CURRENT_DATE |]
-        (Only cityName)
-  case weather of
-    [] -> error "No weather data for today" -- TODO get the current weather, cache it, and return it
-    [(cityName', state', latitude', longitude', date', temperature')] ->
-      pure $ WeatherEntry (City state' cityName' latitude' longitude') date' temperature'
+        (Only cityId)
+  case cachedWeather of
+    [(cityId', cityName', state', latitude', longitude', date', temperature')] ->
+      pure $ WeatherEntry (City cityId' state' cityName' latitude' longitude') date' temperature'
+    [] -> do
+      maybeWeather <- WeatherApi.getWeather (latitude city) (longitude city)
+      -- TODO handle error better
+      (WeatherResponse temperatureResponse) <- either error pure maybeWeather
+      liftIO $ putStrLn "Caching weather"
+      liftIO $ void $ execute conn "insert into weather (city_id, date, temperature) values (?, CURRENT_DATE, ?)" (cityId, temperatureResponse)
+      return $ WeatherEntry city undefined temperatureResponse
     _ -> error "Multiple weather entries for today" -- TODO log this error but still return
 
 -- Reference for boilerplate: https://docs.servant.dev/en/stable/cookbook/using-custom-monad/UsingCustomMonad.html
