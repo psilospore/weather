@@ -65,11 +65,18 @@ Note: The point of this exercise is not to build a world class weather applicati
 Please let me know if you have any questions, 
 
 ## TODOS
-- [ ] Tests
-- [ ] Host in ec2
 
+- [ ] Tests
+- [ ] Host in fargate
+- [ ] Use a typeahead.
 
 ### Things that would be nice but won't do right now
+
+This took me a quite a while and I wanted to get to more but had other obligations.
+There's a quite a bit more I wanted to do so I'll just add a list here.
+
 - [ ] Connection pooling
 - [ ] Better error handling
+- [ ] More IAC (There's some but didn't get to put it all in IAC)
+- [ ] Have a CI pipeline with github actions that will build my image, push to ecr, and deploy to fargate on commits to main.
 - [ ] 
