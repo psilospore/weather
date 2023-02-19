@@ -1,0 +1,118 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.35.2.
+--
+-- see: https://github.com/sol/hpack
+
+name:           weather-with-tom-sweaters
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/weather-with-tom-sweaters#readme>
+homepage:       https://github.com/githubuser/weather-with-tom-sweaters#readme
+bug-reports:    https://github.com/githubuser/weather-with-tom-sweaters/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2023 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/weather-with-tom-sweaters
+
+library
+  exposed-modules:
+      App
+      Config
+      Lib
+      Server
+  other-modules:
+      Paths_weather_with_tom_sweaters
+  hs-source-dirs:
+      src
+  default-extensions:
+      ImportQualifiedPost
+      DerivingVia
+      GeneralizedNewtypeDeriving
+      OverloadedStrings
+      NamedFieldPuns
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , envy
+    , http-client
+    , monad-logger
+    , mtl
+    , postgresql-simple
+    , servant
+    , servant-client
+    , servant-server
+    , text
+    , time
+    , unliftio
+    , warp
+  default-language: Haskell2010
+
+executable weather-with-tom-sweaters-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_weather_with_tom_sweaters
+  hs-source-dirs:
+      app
+  default-extensions:
+      ImportQualifiedPost
+      DerivingVia
+      GeneralizedNewtypeDeriving
+      OverloadedStrings
+      NamedFieldPuns
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , envy
+    , http-client
+    , monad-logger
+    , mtl
+    , postgresql-simple
+    , servant
+    , servant-client
+    , servant-server
+    , text
+    , time
+    , unliftio
+    , warp
+    , weather-with-tom-sweaters
+  default-language: Haskell2010
+
+test-suite weather-with-tom-sweaters-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_weather_with_tom_sweaters
+  hs-source-dirs:
+      test
+  default-extensions:
+      ImportQualifiedPost
+      DerivingVia
+      GeneralizedNewtypeDeriving
+      OverloadedStrings
+      NamedFieldPuns
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , envy
+    , http-client
+    , monad-logger
+    , mtl
+    , postgresql-simple
+    , servant
+    , servant-client
+    , servant-server
+    , text
+    , time
+    , unliftio
+    , warp
+    , weather-with-tom-sweaters
+  default-language: Haskell2010

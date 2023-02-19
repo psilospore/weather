@@ -6,10 +6,6 @@ author:              "Author name here"
 maintainer:          "example@example.com"
 copyright:           "2023 Author name here"
 
-extra-source-files:
-- README.md
-- CHANGELOG.md
-
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
 # category:            Web
@@ -21,13 +17,19 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
+- aeson
+- envy
 - http-client
 - unliftio
 - postgresql-simple
 - monad-logger
 - mtl
 - text
+- time
 - servant
+- servant-server
+- servant-client
+- warp
 
 ghc-options:
 - -Wall
