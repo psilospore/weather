@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.35.0.
+-- This file has been generated from package.yaml by hpack version 0.35.2.
 --
 -- see: https://github.com/sol/hpack
 
@@ -26,6 +26,7 @@ library
       EnvVars
       Lib
       Server
+      WeatherApi
   other-modules:
       Paths_weather_with_tom_sweaters
   hs-source-dirs:
@@ -44,6 +45,7 @@ library
     , bytestring
     , envy
     , http-client
+    , http-client-tls
     , load-env
     , monad-logger
     , mtl
@@ -78,6 +80,7 @@ executable weather-with-tom-sweaters-exe
     , bytestring
     , envy
     , http-client
+    , http-client-tls
     , load-env
     , monad-logger
     , mtl
@@ -114,6 +117,7 @@ test-suite weather-with-tom-sweaters-test
     , bytestring
     , envy
     , http-client
+    , http-client-tls
     , load-env
     , monad-logger
     , mtl

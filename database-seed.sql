@@ -2,8 +2,8 @@ CREATE TABLE cities (
   id serial PRIMARY KEY,
   name text NOT NULL,
   state text NOT NULL,
-  latitude decimal NOT NULL,
-  longitude decimal NOT NULL
+  latitude double precision NOT NULL,
+  longitude double precision NOT NULL
 );
 
 -- Frontend passes city directly so this is fine as an index.

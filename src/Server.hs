@@ -14,7 +14,7 @@ import Data.Proxy
 import Data.Text
 import Data.Time (Day (..))
 import Database.PostgreSQL.Simple (FromRow, Only (..), query, query_)
-import Database.PostgreSQL.Simple.FromField (FromField)
+import Database.PostgreSQL.Simple.FromField (FromField (fromField))
 import Database.PostgreSQL.Simple.FromRow (FromRow (fromRow), field)
 import Database.PostgreSQL.Simple.SqlQQ (sql)
 import GHC.Generics (Generic)
@@ -31,7 +31,10 @@ type API =
   "locations" :> Get '[JSON] [City]
     :<|> "location" :> Capture "city" Text :> "weather" :> Get '[JSON] WeatherEntry
 
-newtype State = State Text deriving (Show, Eq, Ord, Generic, FromField)
+newtype State = State Text deriving (Show, Eq, Ord, Generic)
+
+instance FromField State where
+  fromField f mdata = State <$> fromField f mdata
 
 instance FromJSON State
 
@@ -49,7 +52,10 @@ data City = City
     latitude :: Double,
     longitude :: Double
   }
-  deriving (Show, Eq, Ord, Generic, FromRow)
+  deriving (Show, Eq, Ord, Generic)
+
+instance FromRow City where
+  fromRow = City <$> field <*> (State <$> field) <*> field <*> field
 
 instance FromJSON City
 
@@ -75,7 +81,7 @@ instance ToJSON WeatherEntry
 locations :: App [City]
 locations = do
   conn <- asks App.connection
-  liftIO $ query_ conn "SELECT (cityName, state, latitude, longitude) FROM cities"
+  liftIO $ query_ conn "SELECT name, state, latitude, longitude FROM cities"
 
 weatherFor :: Text -> App WeatherEntry
 weatherFor cityName = do
@@ -84,7 +90,7 @@ weatherFor cityName = do
     liftIO $
       query
         conn
-        [sql| SELECT cityName, state, latitude, longitude, date, temperature FROM weather
+        [sql| SELECT name, state, latitude, longitude, date, temperature FROM weather
             join cities on weather.city_id = cities.id
             WHERE city = ? and date = CURRENT_DATE |]
         (Only cityName)
@@ -110,6 +116,7 @@ server = locations :<|> weatherFor
 
 main :: IO ()
 main = do
+  putStrLn "Starting server..."
   environment <- App.loadEnvironment
   let port = App.port environment
   run port $ app environment

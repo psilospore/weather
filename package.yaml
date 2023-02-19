@@ -21,6 +21,7 @@ dependencies:
 - bytestring
 - envy
 - http-client
+- http-client-tls
 - unliftio
 - postgresql-simple
 - load-env
