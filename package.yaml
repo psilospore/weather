@@ -18,10 +18,12 @@ description:         Please see the README on GitHub at <https://github.com/gith
 dependencies:
 - base >= 4.7 && < 5
 - aeson
+- bytestring
 - envy
 - http-client
 - unliftio
 - postgresql-simple
+- load-env
 - monad-logger
 - mtl
 - text
@@ -30,6 +32,7 @@ dependencies:
 - servant-server
 - servant-client
 - warp
+- witch
 
 ghc-options:
 - -Wall
@@ -44,9 +47,10 @@ ghc-options:
 default-extensions:
   - ImportQualifiedPost
   - DerivingVia
-  - GeneralizedNewtypeDeriving
   - OverloadedStrings
   - NamedFieldPuns
+  - DeriveGeneric
+  - TypeApplications
 
 library:
   source-dirs: src

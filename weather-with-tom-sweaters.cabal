@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.35.2.
+-- This file has been generated from package.yaml by hpack version 0.35.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -23,7 +23,7 @@ source-repository head
 library
   exposed-modules:
       App
-      Config
+      EnvVars
       Lib
       Server
   other-modules:
@@ -33,15 +33,18 @@ library
   default-extensions:
       ImportQualifiedPost
       DerivingVia
-      GeneralizedNewtypeDeriving
       OverloadedStrings
       NamedFieldPuns
+      DeriveGeneric
+      TypeApplications
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
     , envy
     , http-client
+    , load-env
     , monad-logger
     , mtl
     , postgresql-simple
@@ -52,6 +55,7 @@ library
     , time
     , unliftio
     , warp
+    , witch
   default-language: Haskell2010
 
 executable weather-with-tom-sweaters-exe
@@ -63,15 +67,18 @@ executable weather-with-tom-sweaters-exe
   default-extensions:
       ImportQualifiedPost
       DerivingVia
-      GeneralizedNewtypeDeriving
       OverloadedStrings
       NamedFieldPuns
+      DeriveGeneric
+      TypeApplications
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
     , envy
     , http-client
+    , load-env
     , monad-logger
     , mtl
     , postgresql-simple
@@ -83,6 +90,7 @@ executable weather-with-tom-sweaters-exe
     , unliftio
     , warp
     , weather-with-tom-sweaters
+    , witch
   default-language: Haskell2010
 
 test-suite weather-with-tom-sweaters-test
@@ -95,15 +103,18 @@ test-suite weather-with-tom-sweaters-test
   default-extensions:
       ImportQualifiedPost
       DerivingVia
-      GeneralizedNewtypeDeriving
       OverloadedStrings
       NamedFieldPuns
+      DeriveGeneric
+      TypeApplications
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
     , envy
     , http-client
+    , load-env
     , monad-logger
     , mtl
     , postgresql-simple
@@ -115,4 +126,5 @@ test-suite weather-with-tom-sweaters-test
     , unliftio
     , warp
     , weather-with-tom-sweaters
+    , witch
   default-language: Haskell2010

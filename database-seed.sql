@@ -23,7 +23,7 @@ CREATE INDEX weather_date_city_id ON weather (date, city_id);
 -- Seeding with a bunch of random cities from here:
 -- https://www.latlong.net/category/cities-236-15.html
 INSERT INTO 
-    cities (name, state_id, latitude, longitude)
+    cities (name, state, latitude, longitude)
 VALUES
     ('Peabody', 'MA',	42.536457, -70.985786),
     ('Northampton', 'MA',	42.328674	, -72.664658),

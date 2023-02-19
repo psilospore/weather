@@ -1,14 +1,13 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Server where
 
-import App (App (unApp), Environment (connection), runApp)
+import App (App, Environment)
+import App qualified
 import Control.Monad.Reader (ReaderT (ReaderT, runReaderT), asks, liftIO)
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Proxy
@@ -75,12 +74,12 @@ instance ToJSON WeatherEntry
 -- From a single state?
 locations :: App [City]
 locations = do
-  conn <- asks connection
+  conn <- asks App.connection
   liftIO $ query_ conn "SELECT (cityName, state, latitude, longitude) FROM cities"
 
 weatherFor :: Text -> App WeatherEntry
 weatherFor cityName = do
-  conn <- asks connection
+  conn <- asks App.connection
   weather <-
     liftIO $
       query
@@ -100,7 +99,7 @@ api :: Proxy API
 api = Proxy
 
 nt :: Environment -> App a -> Handler a
-nt env a = case unApp a of
+nt env a = case App.unApp a of
   ReaderT f -> liftIO $ f env
 
 app :: Environment -> Application
@@ -111,18 +110,6 @@ server = locations :<|> weatherFor
 
 main :: IO ()
 main = do
-  let port = 80 -- TODO get this from an environment variable
-  mgr <- newManager defaultManagerSettings
-  let runApp = run port $ app Environment {connection = undefined, openWeatherApiKey = undefined} -- TODO
-  bracket (forkIO runApp) killThread $ \_ -> do
-    let getBooksClient :<|> addBookClient = client api
-    let printBooks = getBooksClient >>= liftIO . print
-    _ <- flip runClientM (mkClientEnv mgr (BaseUrl Http "localhost" port "")) $ do
-      _ <- printBooks
-      _ <- addBookClient $ Book "Harry Potter and the Order of the Phoenix"
-      _ <- printBooks
-      _ <- addBookClient $ Book "To Kill a Mockingbird"
-      _ <- printBooks
-      _ <- addBookClient $ Book "The Picture of Dorian Gray"
-      printBooks
-    return ()
+  environment <- App.loadEnvironment
+  let port = App.port environment
+  run port $ app environment
