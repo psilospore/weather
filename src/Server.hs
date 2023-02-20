@@ -22,6 +22,7 @@ import Database.PostgreSQL.Simple.ToField (ToField (toField))
 import Database.PostgreSQL.Simple.ToRow (ToRow (toRow))
 import GHC.Generics (Generic)
 import Network.Wai.Handler.Warp (run)
+import Network.Wai.Middleware.Cors
 import Servant
 import WeatherApi (WeatherResponse (WeatherResponse))
 import WeatherApi qualified
@@ -116,7 +117,7 @@ nt env a = case App.unApp a of
   ReaderT f -> liftIO $ f env
 
 app :: Environment -> Application
-app env = serve api $ hoistServer api (nt env) server
+app env = simpleCors $ serve api $ hoistServer api (nt env) server
 
 server :: ServerT API App
 server = locations :<|> weatherFor

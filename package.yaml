@@ -33,6 +33,7 @@ dependencies:
 - servant-server
 - servant-client
 - warp
+- wai-cors
 - witch
 
 ghc-options:

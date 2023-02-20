@@ -7,6 +7,7 @@ import Html.Events exposing (onInput, onClick)
 import Http
 import Json.Decode exposing (..)
 import Time 
+import Http exposing (Error(..))
 
 
 -- MODEL
@@ -82,18 +83,18 @@ fetchCities : Cmd Msg
 fetchCities =
     let
         url =
-            "localhost:80/locations/"
+            "http://localhost:80/locations"
     in
     Http.get
         { url = url
-        , expect = Http.expectJson SetWeather weatherEntryDecoder
+        , expect = Http.expectJson LoadCities <| Json.Decode.list cityDecoder
         }
 
 fetchWeather : Int -> Cmd Msg
 fetchWeather cityId =
     let
         url =
-            "localhost:80/location/" ++ String.fromInt cityId ++ "/1/weather"
+            "http://localhost:80/location/" ++ String.fromInt cityId ++ "/weather"
     in
     Http.get
         { url = url
@@ -124,26 +125,25 @@ weatherEntryDecoder =
 
 view : Model -> Html Msg
 view model =
-    div [] (
-        if model.loading then
-            [p [ ] [ text "LOADING..." ]]
-        else 
-            [ h1 [] [ text "Weather App" ]
-            , case model.error of
-                Just err -> p [] [text <| httpErrorToString err]
-                Nothing -> div [] []
-            , div [] [ select [ onInput (\cityId -> CitySelected (String.toInt cityId)) ]
-                (option [] [ text "Select a city" ]
-                    :: (List.map cityOption model.cities)
-                )
-            ]
-            , case model.weather of
-                Just weather ->
-                    div []
-                        [ p [] [ text <| "Temperature: " ++ String.fromFloat weather.temperature ++ "°F" ]
-                        ]
-                Nothing -> div [] []
-            ])
+    div [] ([
+        h1 [] [ text "Weather App" ]
+        , if model.loading then p [ ] [ text "LOADING..." ] else div [] []
+        , case model.error of
+            Just err -> p [] [text <| httpErrorToString err]
+            Nothing -> div [] []
+        , div [] [ select [ onInput (\cityId -> CitySelected (String.toInt cityId)) ]
+            (option [] [ text "Select a city" ]
+                :: (List.map cityOption model.cities)
+            )
+        ]
+        , case model.weather of
+            Just weather ->
+                div []
+                    [ p [] [ text <| "Temperature: " ++ String.fromFloat weather.temperature ++ "°F" ],
+                      img [src "https://c8.alamy.com/comp/2C705N5/adult-woman-sweating-suffering-heat-stroke-sitting-in-the-coach-at-home-2C705N5.jpg"] []
+                    ]
+            Nothing -> div [] []
+        ])
 
 cityOption : City -> Html Msg
 cityOption city =
@@ -171,4 +171,9 @@ main =
 
 -- TODO extract msg
 httpErrorToString : Http.Error -> String
-httpErrorToString err = "Http Error"
+httpErrorToString err = case err of
+    BadUrl badUrlErr -> "BadUrl " ++ badUrlErr
+    Timeout -> "Timeout"
+    NetworkError -> "Network Error"
+    BadStatus status -> "Bad status " ++ String.fromInt status
+    BadBody body -> "Bad Body " ++ body
