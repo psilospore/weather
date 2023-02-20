@@ -11,19 +11,21 @@ resource "aws_ecs_cluster" "cluster" {
 }
 
 resource "aws_vpc" "aws-vpc" { 
-  cidr_block = ""
+  cidr_block = "10.0.0.0/16"
 }
 
 resource "aws_subnet" "aws-subnet" {
   vpc_id = "${aws_vpc.aws-vpc.id}"
-  cidr_block = ""
+  cidr_block = "10.0.1.0/25"
+  availability_zone = "us-east-1a"
+
 }
 
 # TODO API Key needs to come from 
 # TODO make a postgres RDS instance and connect to it
 resource "aws_ecs_task_definition" "weather_api" {
   family = "weather-api"
-  container_definitions = <<DEFINITION
+  container_definitions = <<EOF
 [
   {
     "name": "weather-api",
@@ -53,6 +55,8 @@ resource "aws_ecs_task_definition" "weather_api" {
     ]
   }
 ]
+EOF
+}
 
 resource "aws_ecs_service" "weather_api" {
   name = "weather-api"
