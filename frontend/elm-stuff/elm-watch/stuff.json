@@ -1,0 +1,10 @@
+{
+    "port": 37035,
+    "targets": {
+        "My target name": {
+            "compilationMode": "standard",
+            "browserUiPosition": "BottomLeft",
+            "openErrorOverlay": false
+        }
+    }
+}

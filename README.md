@@ -79,4 +79,7 @@ There's a quite a bit more I wanted to do so I'll just add a list here.
 - [ ] Better error handling
 - [ ] More IAC (There's some but didn't get to put it all in IAC)
 - [ ] Have a CI pipeline with github actions that will build my image, push to ecr, and deploy to fargate on commits to main.
+- [ ] Use newtypes
+- [ ] More useful weather data rather than just the current imperial temperature.
 - [ ] 
+
